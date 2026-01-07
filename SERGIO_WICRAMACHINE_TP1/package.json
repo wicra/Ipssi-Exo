@@ -14,7 +14,8 @@
 
   "dependencies": {
     "express": "^4.18.2",
-    "nodemon": "^2.0.22"
+    "nodemon": "^2.0.22",
+    "fs.promises": "^0.1.2"
   }
 
 }

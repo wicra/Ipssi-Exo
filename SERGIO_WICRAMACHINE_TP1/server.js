@@ -1,13 +1,17 @@
-// IMPORTE
-import express from 'express';
-
+// IMPORTS
 const express = require('express');
-const postsRouter = require('./routes/posts');
 const logger = require('./middlewares/logger');
+const postRoutes = require('./routes/posts');
+
+// APP
 const app = express();
+
+// MIDDLEWARES
 app.use(express.json());
 app.use(logger);
-app.use('/posts', postsRouter);
 
+// ROUTES
+app.use('/posts', postRoutes);
 
-app.listen(3000, ()=> console.log('Listening 3000'));
+// DÉMARRAGE SERVEUR
+app.listen(3000, () => console.log('Server listening on port 3000'));

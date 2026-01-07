@@ -1,5 +1,3 @@
-import express from 'express';
-
 // ROUTES POSTS CRUD
 const express = require('express');
 const router = express.Router();
