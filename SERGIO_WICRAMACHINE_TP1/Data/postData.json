@@ -1,5 +1,12 @@
-{
-    "id": 1,
-    "title": "First Post",
-    "content": "This is the content of the first post."
-}
+[
+  {
+    "id": 3,
+    "title": "cc",
+    "content": "test"
+  },
+  {
+    "id": 4,
+    "title": "cc",
+    "content": "test"
+  }
+]

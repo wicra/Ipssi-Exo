@@ -1,7 +1,7 @@
 // CONTROLEUR POSTS - LOGIQUE CRUD
 const { readAll, writeAll } = require('../models/postModel');
 
-// GET ALL - Récupérer tous les posts
+// RECUPERER TOUS LES POSTS
 async function getAll(req, res) {
     try {
         const posts = await readAll();
@@ -11,7 +11,7 @@ async function getAll(req, res) {
     }
 }
 
-// GET BY ID - Récupérer un post par ID
+// RECUPERER UN POST PAR ID
 async function getById(req, res) {
     try {
         const id = parseInt(req.params.id, 10);
@@ -28,7 +28,7 @@ async function getById(req, res) {
     }
 }
 
-// CREATE - Créer un nouveau post
+// CREER
 async function create(req, res) {
     try {
         const postData = await readAll();
@@ -47,7 +47,7 @@ async function create(req, res) {
     }
 }
 
-// UPDATE - Modifier un post existant
+// MAJ
 async function update(req, res) {
     try {
         const id = parseInt(req.params.id, 10);
@@ -58,7 +58,7 @@ async function update(req, res) {
             postData[index] = {
                 ...postData[index],
                 ...req.body,
-                id: id // Garder l'ID original
+                id: id
             };
             await writeAll(postData);
             res.json(postData[index]);
@@ -70,7 +70,7 @@ async function update(req, res) {
     }
 }
 
-// DELETE - Supprimer un post
+// SUPPRESSION
 async function remove(req, res) {
     try {
         const id = parseInt(req.params.id, 10);
