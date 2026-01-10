@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Back Office - Blog</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        header { background: #333; color: white; padding: 1rem; margin-bottom: 2rem; border-radius: 5px; }
+        header h1 { margin-bottom: 0.5rem; }
+        nav { display: flex; gap: 1rem; margin-top: 1rem; }
+        nav a, nav button { color: white; text-decoration: none; padding: 0.5rem 1rem; background: #555; border: none; border-radius: 3px; cursor: pointer; }
+        nav a:hover, nav button:hover { background: #666; }
+        .section { background: #f9f9f9; padding: 2rem; margin-bottom: 2rem; border-radius: 5px; border: 1px solid #ddd; }
+        .section h2 { margin-bottom: 1.5rem; color: #333; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        input, textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 3px; font-family: inherit; }
+        textarea { min-height: 200px; resize: vertical; }
+        button[type="submit"] { background: #28a745; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 3px; cursor: pointer; font-size: 1rem; }
+        button[type="submit"]:hover { background: #218838; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #333; color: white; }
+        .actions { display: flex; gap: 0.5rem; }
+        .btn-edit { background: #ffc107; color: #333; padding: 0.5rem 1rem; border: none; border-radius: 3px; cursor: pointer; }
+        .btn-delete { background: #dc3545; color: white; padding: 0.5rem 1rem; border: none; border-radius: 3px; cursor: pointer; }
+        .btn-edit:hover { background: #e0a800; }
+        .btn-delete:hover { background: #c82333; }
+        .hidden { display: none; }
+        .message { padding: 1rem; margin-bottom: 1rem; border-radius: 3px; }
+        .error { background: #f8d7da; color: #721c24; }
+        .success { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <!-- @author Wicramachine Sergio -->
+    <header>
+        <h1>Back Office - Gestion des Articles</h1>
+        <nav>
+            <a href="/">Accueil</a>
+            <button id="logout-btn">Déconnexion</button>
+        </nav>
+    </header>
+
+    <main>
+        <div id="message-container"></div>
+
+        <!-- Formulaire de création/édition d'article -->
+        <section class="section">
+            <h2 id="form-title">Créer un nouvel article</h2>
+            <form id="article-form">
+                <input type="hidden" id="article-id">
+                <div class="form-group">
+                    <label for="title">Titre</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="content">Contenu</label>
+                    <textarea id="content" name="content" required></textarea>
+                </div>
+                <button type="submit" id="submit-btn">Créer l'article</button>
+                <button type="button" id="cancel-btn" class="hidden" style="margin-left: 0.5rem; background: #6c757d;">Annuler</button>
+            </form>
+        </section>
+
+        <!-- Liste des articles -->
+        <section class="section">
+            <h2>Mes articles</h2>
+            <table id="articles-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Titre</th>
+                        <th>Date de création</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="articles-body">
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Chargement...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <script src="/js/backoffice.js"></script>
+</body>
+</html>
