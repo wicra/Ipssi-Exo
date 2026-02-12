@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Erreur serveur - SymfonyPress{% endblock %}
+
+{% block body %}
+<main>
+    <section class="error-page">
+        <header>
+            <div class="error-code">500</div>
+            <h1>Erreur interne du serveur</h1>
+        </header>
+        <p>Une erreur inattendue s'est produite. Nos équipes ont été prévenues.</p>
+        <p>Veuillez réessayer dans quelques instants.</p>
+        <nav aria-label="Actions disponibles">
+            <a href="{{ path('home') }}" class="btn btn-primary">← Retour à l'accueil</a>
+        </nav>
+    </section>
+</main>
+{% endblock %}

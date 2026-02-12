@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accueil - SymfonyPress{% endblock %}
+
+{% block body %}
+<section>
+    <header>
+        <h1>SymfonyPress</h1>
+        <p>Votre blog technique sur Symfony et PHP</p>
+    </header>
+    
+    <section aria-label="Catégories">
+        <h2>Catégories</h2>
+        <nav>
+            <ul>
+                {% for category in categories %}
+                <li>
+                    <a href="{{ path('category_show', {slug: category.slug}) }}">{{ category.name }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </nav>
+    </section>
+    
+    <section aria-label="Articles récents">
+        <h2>Derniers articles</h2>
+        {% for article in articles %}
+            {% include 'components/article_card.html.twig' %}
+        {% else %}
+            <p role="alert">Aucun article disponible.</p>
+        {% endfor %}
+    </section>
+</section>
+{% endblock %}

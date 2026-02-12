@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ article.title }} - SymfonyPress{% endblock %}
+
+{% block body %}
+<section class="admin-section">
+    <header class="admin-header">
+        <h1>Modifier l'article</h1>
+        <p>{{ article.title }}</p>
+    </header>
+
+    <div class="form-container">
+        {% if article.image %}
+            <div class="current-image">
+                <p><strong>Image actuelle :</strong></p>
+                <img src="{{ asset('uploads/articles/' ~ article.image) }}" alt="{{ article.title }}" loading="lazy" width="300" height="170">
+            </div>
+        {% endif %}
+        {{ include('admin/article/_form.html.twig', {'button_label': 'Mettre à jour'}) }}
+    </div>
+
+    <div class="admin-actions admin-actions-split">
+        <a href="{{ path('admin_article_index') }}" class="btn btn-secondary">← Retour à la liste</a>
+        <div>
+            {{ include('admin/article/_delete_form.html.twig') }}
+        </div>
+    </div>
+</section>
+{% endblock %}

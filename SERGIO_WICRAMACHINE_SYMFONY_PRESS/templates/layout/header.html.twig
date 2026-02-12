@@ -1,0 +1,18 @@
+<header>
+    <nav aria-label="Navigation principale">
+        <ul>
+            <li><a href="{{ path('home') }}" {% if app.request.get('_route') == 'home' %}aria-current="page"{% endif %}>Accueil</a></li>
+            
+            {% if app.user %}
+                <li><a href="{{ path('admin_article_index') }}" {% if app.request.get('_route') starts with 'admin_' %}aria-current="page"{% endif %}>Administration</a></li>
+                <li class="user-info">
+                    <span>👤 {{ app.user.name }}</span>
+                </li>
+                <li><a href="{{ path('app_logout') }}" class="btn-logout">Déconnexion</a></li>
+            {% else %}
+                <li><a href="{{ path('app_login') }}">Connexion</a></li>
+                <li><a href="{{ path('app_register') }}" class="btn-register">Inscription</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</header>

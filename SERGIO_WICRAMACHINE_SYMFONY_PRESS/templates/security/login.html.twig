@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - SymfonyPress{% endblock %}
+
+{% block body %}
+<section class="admin-section">
+    <header class="admin-header">
+        <h1>Connexion</h1>
+        <p>Connectez-vous pour accéder à l'administration</p>
+    </header>
+
+    {% if error %}
+        <div class="flash-error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+    {% endif %}
+
+    {% if app.user %}
+        <div class="flash-info">
+            Vous êtes déjà connecté en tant que {{ app.user.userIdentifier }}, <a href="{{ path('app_logout') }}">Se déconnecter</a>
+        </div>
+    {% endif %}
+
+    <div class="form-container">
+        <form method="post">
+            <div class="form-group">
+                <label for="inputEmail">Email</label>
+                <input type="email" value="{{ last_username }}" name="email" id="inputEmail" autocomplete="email" required autofocus placeholder="votre@email.com">
+            </div>
+
+            <div class="form-group">
+                <label for="inputPassword">Mot de passe</label>
+                <input type="password" name="password" id="inputPassword" autocomplete="current-password" required placeholder="Votre mot de passe">
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" name="_remember_me"> Se souvenir de moi
+                </label>
+            </div>
+
+            <button class="btn btn-primary" type="submit">Se connecter</button>
+        </form>
+    </div>
+
+    <div class="admin-actions">
+        <p>Pas encore de compte ? <a href="{{ path('app_register') }}">S'inscrire</a></p>
+    </div>
+</section>
+{% endblock %}

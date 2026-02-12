@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un article - SymfonyPress{% endblock %}
+
+{% block body %}
+<section class="admin-section">
+    <header class="admin-header">
+        <h1>Créer un nouvel article</h1>
+        <p>Remplissez le formulaire ci-dessous pour publier un nouvel article</p>
+    </header>
+
+    <div class="form-container">
+        {{ include('admin/article/_form.html.twig') }}
+    </div>
+
+    <div class="admin-actions">
+        <a href="{{ path('admin_article_index') }}" class="btn btn-secondary">← Retour à la liste</a>
+    </div>
+</section>
+{% endblock %}

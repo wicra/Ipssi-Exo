@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Accès refusé - SymfonyPress{% endblock %}
+
+{% block body %}
+<main>
+    <section class="error-page">
+        <header>
+            <div class="error-code">403</div>
+            <h1>Accès refusé</h1>
+        </header>
+        <p>Vous n'avez pas les droits nécessaires pour accéder à cette page.</p>
+        <p>Veuillez vous connecter avec un compte autorisé.</p>
+        <nav aria-label="Actions disponibles">
+            <a href="{{ path('home') }}" class="btn btn-primary">← Retour à l'accueil</a>
+            <a href="{{ path('app_login') }}" class="btn btn-secondary">Se connecter</a>
+        </nav>
+    </section>
+</main>
+{% endblock %}

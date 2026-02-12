@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Administration des articles - SymfonyPress{% endblock %}
+
+{% block body %}
+<section class="admin-section">
+    <header class="admin-header">
+        <h1>Gestion des articles</h1>
+        <p>Administrez vos articles : création, modification et suppression</p>
+    </header>
+
+    <div class="admin-actions">
+        <a href="{{ path('admin_article_new') }}" class="btn btn-primary">✨ Créer un nouvel article</a>
+    </div>
+
+    {% if articles|length > 0 %}
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Auteur</th>
+                    <th>Catégorie</th>
+                    <th>Date de création</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for article in articles %}
+                <tr>
+                    <td class="article-title">
+                        <strong>{{ article.title }}</strong>
+                        <small>{{ article.slug }}</small>
+                    </td>
+                    <td>{{ article.author.name }}</td>
+                    <td>{{ article.category ? article.category.name : 'Sans catégorie' }}</td>
+                    <td>{{ article.createdAt ? article.createdAt|date('d/m/Y à H:i') : '' }}</td>
+                    <td class="actions">
+                        <a href="{{ path('article_show', {'slug': article.slug}) }}" class="btn btn-sm btn-secondary">Voir</a>
+                        <a href="{{ path('admin_article_edit', {'id': article.id}) }}" class="btn btn-sm btn-primary">Modifier</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+        <p role="alert">Aucun article créé pour le moment. Commencez par en créer un !</p>
+    {% endif %}
+</section>
+{% endblock %}

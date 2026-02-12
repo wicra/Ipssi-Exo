@@ -1,0 +1,22 @@
+<article class="article-card">
+    {% if article.image %}
+        <div class="article-card__image">
+            <img src="{{ asset('uploads/articles/' ~ article.image) }}" 
+                 alt="{{ article.title }}" 
+                 loading="lazy" 
+                 width="400" 
+                 height="225">
+        </div>
+    {% endif %}
+    <div class="article-card__content">
+        <header>
+            <h3><a href="{{ path('article_show', {slug: article.slug}) }}">{{ article.title }}</a></h3>
+        </header>
+        <p>{{ article.content|length > 150 ? article.content|slice(0, 150) ~ '...' : article.content }}</p>
+        <footer>
+            <span>Par {{ article.author.name }}</span>
+            <time datetime="{{ article.createdAt|date('Y-m-d') }}">{{ article.createdAt|date('d/m/Y') }}</time>
+            <span>Catégorie : <a href="{{ path('category_show', {slug: article.category.slug}) }}">{{ article.category.name }}</a></span>
+        </footer>
+    </div>
+</article>

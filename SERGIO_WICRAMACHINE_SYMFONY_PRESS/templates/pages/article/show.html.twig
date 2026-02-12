@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ article.title }} - SymfonyPress{% endblock %}
+
+{% block body %}
+<article>
+    <header>
+        <h1>{{ article.title }}</h1>
+        <p>
+            Par <strong>{{ article.author.name }}</strong> le 
+            <time datetime="{{ article.createdAt|date('Y-m-d') }}">{{ article.createdAt|date('d/m/Y') }}</time>
+            | Catégorie : <a href="{{ path('category_show', {slug: article.category.slug}) }}">{{ article.category.name }}</a>
+        </p>
+    </header>
+
+    {% if article.image %}
+        <div class="article-cover">
+            <img src="{{ asset('uploads/articles/' ~ article.image) }}" 
+                 alt="{{ article.title }}" 
+                 loading="lazy" 
+                 width="1200" 
+                 height="600">
+        </div>
+    {% endif %}
+    
+    <section>
+        <p>{{ article.content }}</p>
+    </section>
+    
+    <footer>
+        <a href="{{ path('home') }}">← Retour à l'accueil</a>
+    </footer>
+</article>
+{% endblock %}
