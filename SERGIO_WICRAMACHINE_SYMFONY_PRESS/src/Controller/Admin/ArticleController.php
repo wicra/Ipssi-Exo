@@ -20,7 +20,7 @@ final class ArticleController extends AbstractController
     public function index(ArticleRepository $articleRepository): Response
     {
         return $this->render('admin/article/index.html.twig', [
-            'articles' => $articleRepository->findAll(),
+            'articles' => $articleRepository->findByAuthor($this->getUser()),
         ]);
     }
 
@@ -70,6 +70,11 @@ final class ArticleController extends AbstractController
     #[Route('/{id}/edit', name: 'admin_article_edit', methods: ['GET', 'POST'])]
     public function edit(Request $request, Article $article, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
+        // Vérifier que l'utilisateur est propriétaire de l'article
+        if ($article->getAuthor() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous ne pouvez modifier que vos propres articles.');
+        }
+
         $form = $this->createForm(ArticleType::class, $article);
         $form->handleRequest($request);
 
@@ -117,6 +122,11 @@ final class ArticleController extends AbstractController
     #[Route('/{id}', name: 'admin_article_delete', methods: ['POST'])]
     public function delete(Request $request, Article $article, EntityManagerInterface $entityManager): Response
     {
+        // Vérifier que l'utilisateur est propriétaire de l'article
+        if ($article->getAuthor() !== $this->getUser()) {
+            throw $this->createAccessDeniedException('Vous ne pouvez supprimer que vos propres articles.');
+        }
+
         if ($this->isCsrfTokenValid('delete'.$article->getId(), $request->getPayload()->getString('_token'))) {
             // Supprimer l'image associée si elle existe
             if ($article->getImage()) {
