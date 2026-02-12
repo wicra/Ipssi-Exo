@@ -14,7 +14,7 @@
         </header>
         <p>{{ article.content|length > 150 ? article.content|slice(0, 150) ~ '...' : article.content }}</p>
         <footer>
-            <span>Par {{ article.author.name }}</span>
+            <span>Par {{ article.author ? article.author.name : 'Auteur inconnu' }}</span>
             <time datetime="{{ article.createdAt|date('Y-m-d') }}">{{ article.createdAt|date('d/m/Y') }}</time>
             <span>Catégorie : <a href="{{ path('category_show', {slug: article.category.slug}) }}">{{ article.category.name }}</a></span>
         </footer>

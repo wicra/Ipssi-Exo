@@ -32,7 +32,7 @@
                         <strong>{{ article.title }}</strong>
                         <small>{{ article.slug }}</small>
                     </td>
-                    <td>{{ article.author.name }}</td>
+                    <td>{{ article.author ? article.author.name : 'Non assigné' }}</td>
                     <td>{{ article.category ? article.category.name : 'Sans catégorie' }}</td>
                     <td>{{ article.createdAt ? article.createdAt|date('d/m/Y à H:i') : '' }}</td>
                     <td class="actions">

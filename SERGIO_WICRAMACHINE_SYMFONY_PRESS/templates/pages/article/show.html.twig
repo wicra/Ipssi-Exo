@@ -7,7 +7,7 @@
     <header>
         <h1>{{ article.title }}</h1>
         <p>
-            Par <strong>{{ article.author.name }}</strong> le 
+            Par <strong>{{ article.author ? article.author.name : 'Auteur inconnu' }}</strong> le 
             <time datetime="{{ article.createdAt|date('Y-m-d') }}">{{ article.createdAt|date('d/m/Y') }}</time>
             | Catégorie : <a href="{{ path('category_show', {slug: article.category.slug}) }}">{{ article.category.name }}</a>
         </p>
