@@ -1,123 +1,145 @@
 require("dotenv").config();
-const https = require("https");
-const http = require("http");
 const readline = require("readline");
 
-// ─── Étape 1 : Récupérer le provider ────────────────────────────────────────
-const provider = process.argv[2];
+// Récupération du provider choisi en argument de ligne de commande.
+const providerName = process.argv[2];
 
-if (!provider) {
-  console.error(
-    "Usage : node chatbot-complet.js <provider>\n" +
-      "Providers disponibles : openai, ollama"
-  );
+if (!providerName) {
+  console.error("Usage : node chatbot-complet.js mistral|groq|huggingface");
   process.exit(1);
 }
 
-// ─── Étape 2 : Configuration par provider ───────────────────────────────────
+// Configuration des 3 providers demandés.
 const PROVIDERS = {
-  openai: {
-    host: "api.openai.com",
-    port: 443,
-    path: "/v1/chat/completions",
-    protocol: https,
-    model: process.env.OPENAI_MODEL || "gpt-3.5-turbo",
-    apiKey: process.env.OPENAI_API_KEY,
-    buildHeaders(body) {
-      return {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.apiKey}`,
-        "Content-Length": Buffer.byteLength(body),
-      };
-    },
-    buildBody(messages) {
-      return JSON.stringify({ model: this.model, messages });
-    },
-    extractReply(parsed) {
-      return parsed.choices?.[0]?.message?.content?.trim() ?? "(pas de réponse)";
-    },
+  mistral: {
+    url: "https://api.mistral.ai/v1/chat/completions",
+    model: "mistral-small-latest",
+    apiKey: process.env.MISTRAL_API_KEY,
   },
-  ollama: {
-    host: process.env.OLLAMA_HOST || "localhost",
-    port: parseInt(process.env.OLLAMA_PORT || "11434", 10),
-    path: "/api/chat",
-    protocol: http,
-    model: process.env.OLLAMA_MODEL || "llama3",
-    buildHeaders(body) {
-      return {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(body),
-      };
-    },
-    buildBody(messages) {
-      return JSON.stringify({ model: this.model, messages, stream: false });
-    },
-    extractReply(parsed) {
-      return parsed.message?.content?.trim() ?? "(pas de réponse)";
-    },
+  groq: {
+    url: "https://api.groq.com/openai/v1/chat/completions",
+    model: "llama3-8b-8192",
+    apiKey: process.env.GROQ_API_KEY,
+  },
+  huggingface: {
+    url: "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1/v1/chat/completions",
+    model: "mistralai/Mistral-7B-Instruct-v0.1",
+    apiKey: process.env.HUGGINGFACE_API_KEY,
   },
 };
 
-const config = PROVIDERS[provider.toLowerCase()];
+const provider = PROVIDERS[providerName.toLowerCase()];
 
-if (!config) {
+if (!provider) {
   console.error(
-    `Provider inconnu : "${provider}". Choisissez parmi : ${Object.keys(PROVIDERS).join(", ")}`
+    `Provider inconnu : "${providerName}". Choisissez parmi : mistral, groq, huggingface.`
   );
   process.exit(1);
 }
 
-if (provider.toLowerCase() === "openai" && !config.apiKey) {
-  console.error("Erreur : OPENAI_API_KEY manquant dans le fichier .env");
+if (!provider.apiKey) {
+  const envKey = `${providerName.toUpperCase()}_API_KEY`;
+  console.error(`Erreur : ${envKey} manquant dans le fichier .env`);
   process.exit(1);
 }
 
-// ─── Étape 3 : Fonction d'envoi de la requête ────────────────────────────────
-function sendMessage(messages) {
-  return new Promise((resolve, reject) => {
-    const body = config.buildBody(messages);
-    const headers = config.buildHeaders(body);
+// Historique: on met un message système au début.
+const messages = [
+  {
+    role: "system",
+    content:
+      "Tu es un assistant pédagogique. Tu réponds en français de façon claire et concise.",
+  },
+];
 
-    const options = {
-      hostname: config.host,
-      port: config.port,
-      path: config.path,
-      method: "POST",
-      headers,
-    };
+// Petite fonction utilitaire pour extraire le texte du token renvoyé.
+function extractToken(json) {
+  if (json && json.choices && json.choices[0] && json.choices[0].delta) {
+    return json.choices[0].delta.content || "";
+  }
 
-    const req = config.protocol.request(options, (res) => {
-      let data = "";
-      res.on("data", (chunk) => (data += chunk));
-      res.on("end", () => {
-        try {
-          const parsed = JSON.parse(data);
-          if (parsed.error) {
-            reject(new Error(parsed.error.message || JSON.stringify(parsed.error)));
-          } else {
-            resolve(config.extractReply(parsed));
-          }
-        } catch (e) {
-          reject(new Error(`Réponse non-JSON : ${data}`));
-        }
-      });
-    });
+  if (json && json.choices && json.choices[0] && json.choices[0].message) {
+    return json.choices[0].message.content || "";
+  }
 
-    req.on("error", reject);
-    req.write(body);
-    req.end();
-  });
+  return "";
 }
 
-// ─── Étape 4 : Boucle de conversation ────────────────────────────────────────
-const conversationHistory = [];
+// Appel API avec stream:true + affichage en direct.
+async function streamAssistantResponse() {
+  const response = await fetch(provider.url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${provider.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: provider.model,
+      messages,
+      stream: true,
+    }),
+  });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(`HTTP ${response.status} : ${errorText}`);
+  }
+
+  if (!response.body) {
+    throw new Error("Le provider n'a pas retourné de flux de streaming.");
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+
+  let buffer = "";
+  let fullReply = "";
+
+  process.stdout.write("Assistant : ");
+
+  // On lit le flux morceau par morceau.
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() || "";
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) continue;
+
+      const payload = trimmed.slice(5).trim();
+      if (!payload || payload === "[DONE]") continue;
+
+      try {
+        const json = JSON.parse(payload);
+        const token = extractToken(json);
+
+        if (token) {
+          process.stdout.write(token);
+          fullReply += token;
+        }
+      } catch (_err) {
+        // Certaines lignes du stream peuvent être incomplètes.
+      }
+    }
+  }
+
+  process.stdout.write("\n\n");
+  return fullReply.trim() || "(pas de réponse)";
+}
+
+// Readline pour lire les questions dans le terminal.
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
 });
 
-console.log(`\n🤖  Chatbot démarré avec le provider : ${provider}`);
+console.log(`\nChatbot demarre avec le provider : ${providerName}`);
 console.log('    Tapez votre message et appuyez sur Entrée. ("exit" pour quitter)\n');
 
 function prompt() {
@@ -135,12 +157,13 @@ function prompt() {
       return;
     }
 
-    conversationHistory.push({ role: "user", content: trimmed });
+    // On ajoute la question dans l'historique.
+    messages.push({ role: "user", content: trimmed });
 
     try {
-      const reply = await sendMessage(conversationHistory);
-      conversationHistory.push({ role: "assistant", content: reply });
-      console.log(`\nAssistant : ${reply}\n`);
+      const reply = await streamAssistantResponse();
+      // On garde la réponse pour la mémoire des prochains tours.
+      messages.push({ role: "assistant", content: reply });
     } catch (err) {
       console.error(`\nErreur : ${err.message}\n`);
     }

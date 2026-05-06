@@ -1,15 +1,22 @@
 {
   "name": "sergio_wicramachine_ia",
   "version": "1.0.0",
-  "description": "Chatbot CLI multi-provider (OpenAI / Ollama)",
+  "description": "Chatbot CLI multi-providers (Mistral / Groq / HuggingFace)",
   "main": "chatbot-complet.js",
   "scripts": {
-    "start:openai": "node chatbot-complet.js openai",
-    "start:ollama": "node chatbot-complet.js ollama"
+    "start:mistral": "node chatbot-complet.js mistral",
+    "start:groq": "node chatbot-complet.js groq",
+    "start:huggingface": "node chatbot-complet.js huggingface",
+    "start:calculatrice": "node calculatrice.js mistral",
+    "start:calculatrice:groq": "node calculatrice.js groq",
+    "start:calculatrice:huggingface": "node calculatrice.js huggingface"
   },
   "author": "Wicramachine Sergio",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^16.4.5"
+    "@pinecone-database/pinecone": "^3.0.0",
+    "@xenova/transformers": "^2.17.2",
+    "dotenv": "^16.4.5",
+    "langchain": "^1.3.5"
   }
 }
