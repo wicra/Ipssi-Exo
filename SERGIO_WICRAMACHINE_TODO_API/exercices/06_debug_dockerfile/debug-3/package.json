@@ -1,0 +1,10 @@
+{
+  "name": "debug-3",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "mkdir dist && echo 'console.log(\"Server running...\");' > dist/server.js"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
