@@ -94,6 +94,53 @@ L'API démarre et est accessible sur le port **3000** : `http://localhost:3000`.
 
 ---
 
+## Rapport d'Exécution des Exercices Pratiques
+
+Ce projet valide les exigences de l'exercice de mise en pratique des bases DevOps (API Node.js et Dockerisation). Les tests de validation suivants ont été effectués pour prouver le bon fonctionnement de l'infrastructure et de la persistance des données.
+
+### Exercice 1 : Volumes Basiques et Partage de Données
+
+Cet exercice valide la création et l'utilisation d'un volume partagé entre conteneurs.
+
+1. **Création et écriture dans le volume**
+   - Création du volume Docker dédié aux logs (`todo-logs`).
+   - Lancement d'un conteneur interactif (`todo-writer`) avec montage du volume sur `/data`.
+   - Écriture de données de test dans les fichiers `first_log.log` et `second_log.log`.
+   
+   ![Preuve de la création du volume partagé](capture/image.png)
+   ![Preuve de l'écriture dans le volume partagé](capture/image%20copy.png)
+
+2. **Lecture depuis un nouveau conteneur**
+   - Lancement d'un second conteneur indépendant (`todo-reader`), montant le même volume `todo-logs`.
+   - Affichage du contenu des fichiers, confirmant que les données écrites par le premier conteneur sont bien partagées et persistées.
+   
+   ![Preuve de lancement du second conteneur](capture/image%20copy%202.png)
+   ![Preuve de la lecture depuis le second conteneur](capture/image%20copy%203.png)
+
+### Exercice 2 : Todo App et Persistance via Docker Compose
+
+Cet exercice valide la persistance des données de l'API Node.js à travers les redémarrages de l'infrastructure globale.
+
+1. **Démarrage de l'infrastructure**
+   - Lancement des services définis dans le `docker-compose.yml` en arrière-plan (`api`, `db`, `redis`).
+
+2. **Création d'une donnée via l'API**
+   - Envoi d'une requête HTTP POST vers l'endpoint `/api/tasks` pour enregistrer une nouvelle tâche.
+   - Validation de la réponse HTTP 201 Created contenant l'identifiant unique de la tâche.
+   
+   ![Preuve de la requête API](capture/image%20copy%204.png)
+   ![Preuve de la création de la tâche via l'API](capture/image%20copy%205.png)
+
+3. **Validation de la persistance**
+   - Arrêt complet et suppression des conteneurs via la commande d'extinction de Docker Compose.
+   - Redémarrage à zéro de l'infrastructure.
+   - Envoi d'une requête HTTP GET vers l'endpoint `/api/tasks`.
+   - Vérification de la présence de la tâche précédemment créée, confirmant l'efficacité du volume lié aux données applicatives.
+   
+   ![Preuve de la persistance des données après redémarrage](capture/image%20copy%206.png)
+
+---
+
 ## 📖 API Documentation
 
 ### 🔍 Health Check
