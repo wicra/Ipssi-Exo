@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"  # Exposé à l'hôte
+    environment:
+      DB_HOST: database
+      DB_PASSWORD: secret
+    depends_on:
+      - database
+  database:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"  # Maintenant exposé
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: testdb
+    # Pas de ports ! Seulement accessible via le network interne
