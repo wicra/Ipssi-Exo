@@ -1,0 +1,8 @@
+version: '3.8'
+services:
+  api:
+    build: .
+    ports:
+      - "${PORT:-3000}:3000"  # Utilise PORT du .env ou 3000 par défaut
+    env_file:
+      - .env
