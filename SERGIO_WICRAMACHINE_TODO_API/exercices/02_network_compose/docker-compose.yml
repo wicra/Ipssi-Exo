@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  api:
+    image: node:18-alpine
+    command: sh -c "while true; do sleep 3600; done"
+    networks:
+      - frontend
+      - backend
+    ports:
+      - "3000:3000"
+  database:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: secret
+    networks:
+      - backend  # Seulement sur le backend
+  nginx:
+    image: nginx:alpine
+    networks:
+      - frontend  # Seulement sur le frontend
+    ports:
+      - "80:80"
+networks:
+  frontend:  # Network pour l'exposition publique
+  backend:   # Network privé pour la BDD
