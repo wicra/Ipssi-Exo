@@ -9,6 +9,12 @@ on:
 jobs:
   test-unit:
     runs-on: ubuntu-latest
+    
+    # On précise que toutes les commandes (run) s'exécutent dans le dossier du projet
+    defaults:
+      run:
+        working-directory: ./SERGIO_WICRAMACHINE_TODO_API
+        
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
@@ -18,6 +24,7 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: './SERGIO_WICRAMACHINE_TODO_API/package-lock.json'
 
       - name: Installation des dépendances
         run: npm ci
