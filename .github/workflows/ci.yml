@@ -31,3 +31,49 @@ jobs:
 
       - name: Lancement des tests unitaires
         run: npm run test
+
+  test-integration:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./SERGIO_WICRAMACHINE_TODO_API
+
+    # Lancement d'un service PostgreSQL
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: todo_test
+          POSTGRES_USER: todo_user
+          POSTGRES_PASSWORD: todo_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: './SERGIO_WICRAMACHINE_TODO_API/package-lock.json'
+
+      - name: Installation des dépendances
+        run: npm ci
+
+      - name: Lancement des tests avec Base de Données
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_NAME: todo_test
+          DB_USER: todo_user
+          DB_PASSWORD: todo_pass
+        run: npm run test
