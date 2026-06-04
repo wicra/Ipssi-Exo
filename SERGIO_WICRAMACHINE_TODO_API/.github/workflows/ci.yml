@@ -1,0 +1,26 @@
+name: Todo API CI
+
+on:
+  push:
+    branches: [ "projet-docker" ]
+  pull_request:
+    branches: [ "projet-docker" ]
+
+jobs:
+  test-unit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Installation des dépendances
+        run: npm ci
+
+      - name: Lancement des tests unitaires
+        run: npm run test
