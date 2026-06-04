@@ -9,12 +9,9 @@ on:
 jobs:
   test-unit:
     runs-on: ubuntu-latest
-    
-    # On précise que toutes les commandes (run) s'exécutent dans le dossier du projet
     defaults:
       run:
         working-directory: ./SERGIO_WICRAMACHINE_TODO_API
-        
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
@@ -34,12 +31,9 @@ jobs:
 
   test-integration:
     runs-on: ubuntu-latest
-    
     defaults:
       run:
         working-directory: ./SERGIO_WICRAMACHINE_TODO_API
-
-    # Lancement d'un service PostgreSQL
     services:
       postgres:
         image: postgres:16
@@ -54,7 +48,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
@@ -77,3 +70,31 @@ jobs:
           DB_USER: todo_user
           DB_PASSWORD: todo_pass
         run: npm run test
+
+  build-and-push:
+    needs: [test-unit, test-integration]
+    runs-on: ubuntu-latest
+    
+    if: github.ref == 'refs/heads/projet-docker'
+    
+    defaults:
+      run:
+        working-directory: ./SERGIO_WICRAMACHINE_TODO_API
+
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Connexion à DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build de l'image Docker
+        run: docker build -t ${{ secrets.DOCKERHUB_USER }}/todo-api:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USER }}/todo-api:latest .
+
+      - name: Push de l'image sur DockerHub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USER }}/todo-api:${{ github.sha }}
+          docker push ${{ secrets.DOCKERHUB_USER }}/todo-api:latest
