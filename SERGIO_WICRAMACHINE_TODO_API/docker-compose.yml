@@ -5,33 +5,38 @@ services:
       - "3000:3000"
     volumes:
       - ./src:/usr/src/app/src
-      - api-logs:/usr/src/app/logs
       - ./data:/usr/src/app/data
     environment:
       - NODE_ENV=development
       - PORT=3000
       - DATA_PATH=/usr/src/app/data/tasks.json
-    depends_on:
-      - db
-      - redis
     restart: unless-stopped
+    networks:
+      - monitoring
 
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: todo_db
-      POSTGRES_USER: todo_user
-      POSTGRES_PASSWORD: todo_pass
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
     volumes:
-      - postgres-data:/var/lib/postgresql/data   # Persistance BDD
-    ports:
-      - "5432:5432"
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+    networks:
+      - monitoring
 
-  redis:
-    image: redis:7-alpine
+  grafana:
+    image: grafana/grafana:latest
     ports:
-      - "6380:6379"
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - monitoring
 
-volumes:
-  postgres-data: 
-  api-logs:
+networks:
+  monitoring:
+    driver: bridge
