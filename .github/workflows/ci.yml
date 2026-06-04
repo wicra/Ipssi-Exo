@@ -1,4 +1,4 @@
-name: Todo API CI
+name: Todo API CI/CD
 
 on:
   push:
@@ -7,6 +7,7 @@ on:
     branches: [ "projet-docker" ]
 
 jobs:
+  # ─── PHASE 1 : Tests unitaires ───────────────────────────────────────────────
   test-unit:
     runs-on: ubuntu-latest
     defaults:
@@ -29,6 +30,7 @@ jobs:
       - name: Lancement des tests unitaires
         run: npm run test
 
+  # ─── PHASE 2 : Tests d'intégration avec PostgreSQL ──────────────────────────
   test-integration:
     runs-on: ubuntu-latest
     defaults:
@@ -71,16 +73,14 @@ jobs:
           DB_PASSWORD: todo_pass
         run: npm run test
 
+  # ─── PHASE 3 : Build et push de l'image Docker ───────────────────────────────
   build-and-push:
     needs: [test-unit, test-integration]
     runs-on: ubuntu-latest
-    
     if: github.ref == 'refs/heads/projet-docker'
-    
     defaults:
       run:
         working-directory: ./SERGIO_WICRAMACHINE_TODO_API
-
     steps:
       - name: Checkout du code
         uses: actions/checkout@v4
@@ -92,9 +92,35 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build de l'image Docker
-        run: docker build -t ${{ secrets.DOCKERHUB_USER }}/todo-api:${{ github.sha }} -t ${{ secrets.DOCKERHUB_USER }}/todo-api:latest .
+        run: |
+          docker build \
+            -t ${{ secrets.DOCKERHUB_USER }}/todo-api:${{ github.sha }} \
+            -t ${{ secrets.DOCKERHUB_USER }}/todo-api:latest .
 
-      - name: Push de l'image sur DockerHub
+      - name: Push des deux tags sur DockerHub
         run: |
           docker push ${{ secrets.DOCKERHUB_USER }}/todo-api:${{ github.sha }}
           docker push ${{ secrets.DOCKERHUB_USER }}/todo-api:latest
+
+  # ─── PHASE 4 : Déploiement sur K3S ───────────────────────────────────────────
+  deploy-k3s:
+    needs: [build-and-push]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/projet-docker'
+    steps:
+      - name: Checkout du code
+        uses: actions/checkout@v4
+
+      - name: Configurer kubectl avec le kubeconfig du cluster
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Mettre à jour l'image du deployment (rolling update)
+        run: |
+          kubectl set image deployment/todo-api \
+            todo-api=${{ secrets.DOCKERHUB_USER }}/todo-api:${{ github.sha }}
+
+      - name: Attendre la fin du rolling update
+        run: kubectl rollout status deployment/todo-api --timeout=120s

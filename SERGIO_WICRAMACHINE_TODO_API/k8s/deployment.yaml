@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-api
+  labels:
+    app: todo-api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: todo-api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0  # Zéro downtime : on ne supprime aucun ancien pod avant qu'un nouveau soit prêt
+  template:
+    metadata:
+      labels:
+        app: todo-api
+    spec:
+      containers:
+        - name: todo-api
+          image: wicra/todo-api:latest  # Remplace "wicra" par ton pseudo DockerHub
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NODE_ENV
+              value: "production"
+          # Liveness : Kubernetes redémarre le pod s'il ne répond plus (Phase 6)
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          # Readiness : le Service n'envoie du trafic que si le pod est vraiment prêt (Phase 6)
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "50m"
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
